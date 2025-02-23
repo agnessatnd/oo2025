@@ -18,7 +18,6 @@ public class ProductController {
         return productRepository.findAll(); //SELECT *  FROM
     }
     @PostMapping("products")
-
     public List<Product> addProduct(@RequestBody Product product) {
         if (product.getId() != null){
             throw new RuntimeException("ERROR_CANNOT_ADD_WITH_ID");
