@@ -17,6 +17,7 @@ public class ResultController {
     @Autowired
     private AthleteRepository athleteRepository;
 
+    //tulemuse lisamine
     @PostMapping("results")
     public List<Result> addResult(@RequestBody Result result) {
         if (result.getEvent() == null || result.getEvent().isEmpty()){
@@ -34,8 +35,8 @@ public class ResultController {
         result.setPoints(points);
         resultRepository.save(result);
 
-        // lisame sportlase külge tema punktide kogusumma
-        Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElse(null);
+        // lisame sportlase külge tema punktide kogusumma kasutades for tsüklit
+        Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
         if (athlete != null) {
             List<Result> athleteResults = resultRepository.findByAthleteId(athlete.getId());
 
@@ -55,12 +56,14 @@ public class ResultController {
 
     // meetod punktide arvutamiseks, mille sisenditeks on ala koos tulemusega
     private int calculatePoints(String event, Double performance) {
-        // A, B, C on ala spetsiifilised konstandid
+        // A, B, C on ala spetsiifilised parameetrid
         double A, B, C;
 
         switch (event.toLowerCase()){
             case "100m jooks":
                 A = 25.4347; B = 18; C = 1.81;
+                //näide: kui sportlane jooksis 100m ajaga 11.50 sekundit, siis punktide arvutus on järgmine:
+                // 25.4347 * ((18 - 11.50) ^ 1.81) = 753 (ligikaudu)
                 return (int) (A * Math.pow(B - performance, C));
             case "kaugushüpe":
                 A = 0.14354; B = 220; C = 1.4;
@@ -90,33 +93,23 @@ public class ResultController {
                 A = 0.03768; B = 480; C = 1.85;
                 return (int) (A * Math.pow(B - performance, C));
             default:
-                return 0;
+                throw new RuntimeException("ERROR_UNKNOWN_EVENT");
         }
     }
 
+    //koikide tulemuste leidmine
     @GetMapping("results")
     public List<Result> getAllResults() {
         return resultRepository.findAll();
     }
 
+    //tulemuse eemaldamine
     @DeleteMapping("results/{id}")
     public List<Result> deleteResult(@PathVariable Long id) {
+        if (!resultRepository.existsById(id)) {
+            throw new RuntimeException("ERROR_RESULT_NOT_FOUND");
+        }
         resultRepository.deleteById(id);
-        return resultRepository.findAll();
-    }
-
-    @PutMapping("results")
-    public List<Result> updateResult(@RequestBody Result result) {
-        if (result.getId() == null){
-            throw new RuntimeException("ERROR_CANNOT_EDIT_WITHOUT_ID");
-        }
-        if (result.getPerformance() <= 0){
-            throw new RuntimeException("ERROR_PERFORMANCE_MUST_BE_POSITIVE");
-        }
-        if (result.getPoints() <= 0){
-            throw new RuntimeException("ERROR_POINTS_MUST_BE_POSITIVE");
-        }
-        resultRepository.save(result);
         return resultRepository.findAll();
     }
 }
