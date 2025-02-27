@@ -21,6 +21,6 @@ public class Athlete {
     private Long id;
     private String name;
     private String country;
-    private Long age;
-    private int totalPoints;
+    private Integer age;
+    private Integer totalPoints;
 }

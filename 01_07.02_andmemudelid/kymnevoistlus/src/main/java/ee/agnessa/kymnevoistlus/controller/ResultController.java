@@ -35,15 +35,14 @@ public class ResultController {
         result.setPoints(points);
         resultRepository.save(result);
 
-        // lisame sportlase külge tema punktide kogusumma kasutades for tsüklit
+        // lisame sportlase külge tema punktide kogusumma
         Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
         if (athlete != null) {
             List<Result> athleteResults = resultRepository.findByAthleteId(athlete.getId());
 
-            int totalPoints = 0;
-            for (Result athleteResult : athleteResults) {
-                totalPoints += athleteResult.getPoints();
-            }
+            Integer totalPoints = athleteResults.stream()
+                    .mapToInt(Result::getPoints)
+                    .sum();
 
             athlete.setTotalPoints(totalPoints);
             athleteRepository.save(athlete);
@@ -106,10 +105,22 @@ public class ResultController {
     //tulemuse eemaldamine
     @DeleteMapping("results/{id}")
     public List<Result> deleteResult(@PathVariable Long id) {
-        if (!resultRepository.existsById(id)) {
-            throw new RuntimeException("ERROR_RESULT_NOT_FOUND");
-        }
+        Result result = resultRepository.findById(id).orElseThrow(()->new RuntimeException("RESULT_NOT_FOUND"));
+
         resultRepository.deleteById(id);
+
+        // kui tulemus kustutatakse, siis uuendame ka punktide kogusummat
+        Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
+        if (athlete != null) {
+            List<Result> athleteResults = resultRepository.findByAthleteId(athlete.getId());
+
+            Integer totalPoints = athleteResults.stream()
+                    .mapToInt(Result::getPoints)
+                    .sum();
+
+            athlete.setTotalPoints(totalPoints);
+            athleteRepository.save(athlete);
+        }
         return resultRepository.findAll();
     }
 }

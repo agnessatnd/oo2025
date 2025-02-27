@@ -54,7 +54,7 @@ public class AthleteController {
     }
     //küsime ainult punktide kogusummat konkreetse sportlase puhul
     @GetMapping("athletes/{id}/points")
-    public int getAthletePoints(@PathVariable Long id) {
+    public Integer getAthletePoints(@PathVariable Long id) {
         Athlete athlete = athleteRepository.findById(id).orElseThrow(() -> new RuntimeException("ERROR_ATHLETE_NOT_FOUND"));
         return athlete.getTotalPoints();
     }
