@@ -30,23 +30,6 @@ public class AthleteController {
         athleteRepository.save(athlete);
         return athleteRepository.findAll();
     }
-    @PutMapping("athletes")
-    public List<Athlete> editAthlete(@RequestBody Athlete athlete) {
-        if (!athleteRepository.existsById(athlete.getId())) {
-            throw new RuntimeException("ATHLETE_NOT_FOUND");
-        }
-        if (athlete.getName() == null || athlete.getName().isEmpty()) {
-            throw new RuntimeException("ERROR_NAME_IS_MISSING");
-        }
-        if (athlete.getAge() == null){
-            throw new RuntimeException("ERROR_AGE_IS_MISSING");
-        }
-        if (athlete.getCountry() == null || athlete.getCountry().isEmpty()) {
-            throw new RuntimeException("ERROR_COUNTRY_IS_MISSING");
-        }
-        athleteRepository.save(athlete);
-        return athleteRepository.findAll();
-    }
     //küsime konkreetse sportlase andmeid
     @GetMapping("athletes/{id}")
     public Athlete getAthlete(@PathVariable Long id) {
