@@ -1,68 +1,34 @@
-import { useEffect, useState} from 'react'
+
 //import reactLogo from './assets/react.svg'
 //import viteLogo from '/vite.svg'
 import './App.css'
-import { Category } from './models/Category';
-import { Product } from './models/Product';
+import { Route, Routes } from 'react-router-dom'
+import MainPage from './pages/MainPage';
+import ManageProducts from './pages/ManageProducts';
+import ManageCategories from './pages/ManageCategories';
+import Orders from './pages/Orders';
+import Cart from './pages/Cart';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Arrayd from './pages/Arrayd';
+import Menu from './components/Menu';
 
 function App() {
-  //const [count, setCount] = useState(0)
-  const sonad = ["Elas", "metsas", "mutionu"];
-  const autod = [
-    {"mark": "BMW", "mudel": "i5", "year": 2015},
-    {"mark": "Audi", "mudel": "TT", "year": 2016},
-    {"mark": "Mercedes", "mudel": "S", "year": 2014},
-    {"mark": "VW", "mudel": "Golf", "year": 2012}
-  ];
-  const [kategooriad, setKategooriad] = useState<Category[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-
-  
-  useEffect(() => {
-    fetch("http://localhost:8080/categories")
-      .then(res => res.json())
-      .then(json => setKategooriad(json))
-  }, []);
-
-  useEffect(() => {
-    fetch("http://localhost:8080/products")
-      .then(res => res.json())
-      .then(json => setProducts(json))
-  }, []);
-  
   return (
     <>
-      {/* <div>{7 + 7}</div>
-      <div>7 + 7</div>
-      <div>{kogus}</div>
-      <div>{count}</div> */}
-      {sonad.map(sona =>
-      <div key={sona}>
-        {sona}
-      </div>)}
-      <br></br>
+    <Menu />
+      <Routes>
+        <Route path='/' element={ <MainPage/> }/>
+        <Route path='/manage/products' element={ <ManageProducts/> }/>
+        <Route path='/manage/categories' element={ <ManageCategories/> }/>
+        <Route path='/orders' element={ <Orders/> }/>
+        <Route path='/cart' element={ <Cart/> }/>
+        <Route path='/login' element={ <Login/> }/>
+        <Route path='/signup' element={ <Signup/> }/>
+        <Route path='/arrays' element={ <Arrayd/> }/>
 
-      {autod.map(auto =>
-      <div key={auto.mark+auto.mudel}>
-        {auto.mark} - {auto.mudel} ({auto.year})
-      </div>)}
-      <br></br>
-
-      {kategooriad.map(kategooria =>
-        <div key={kategooria.id}>
-          {kategooria.name} {kategooria.active}
-        </div>)}
-        <br></br>
-
-      {products.map(product =>
-      <div key={product.id}>
-        <div>{product.id}</div>
-        <div>{product.name}</div>
-        <div>{product.active}</div>
-        <div>{product.price}</div>
-        <div>{product.image}</div>
-        <div>{product.category ? product.category.name : "Kategooria puudub"}</div>
-      </div>)}
+        <Route path='/*' element={ <div>Page not found</div> }/>
+      </Routes>
     </>
   )
 }
