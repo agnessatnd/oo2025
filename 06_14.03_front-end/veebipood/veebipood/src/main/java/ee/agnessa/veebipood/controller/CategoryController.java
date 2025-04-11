@@ -27,7 +27,7 @@ public class CategoryController {
         return categoryRepository.findAll();
     }
     // DELETE localhost:8080/products/1
-    @DeleteMapping("category/{id}")
+    @DeleteMapping("categories/{id}")
     public List<Category> deleteCategory(@PathVariable Long id) {
         categoryRepository.deleteById(id);
         return categoryRepository.findAll();

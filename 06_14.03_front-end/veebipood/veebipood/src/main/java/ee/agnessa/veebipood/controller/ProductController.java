@@ -3,8 +3,12 @@ package ee.agnessa.veebipood.controller;
 import ee.agnessa.veebipood.entity.Product;
 import ee.agnessa.veebipood.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import ee.agnessa.veebipood.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -29,6 +33,20 @@ public class ProductController {
         productRepository.save(product); //INSERT INTO products
         return productRepository.findAll();
     }
+
+
+//    @GetMapping("/category-products")
+//    public List<Product> getCategoryProducts(@RequestParam Long categoryId) {
+//        List<Product> products = productRepository.findAll();
+//        List<Product> filteredProducts = new ArrayList<>();
+//        for (Product p : products) {
+//            if (p.getCategory().getId().equals(categoryId)){
+//                filteredProducts.add(p);
+//            }
+//        }
+//        return filteredProducts;
+//    }
+
     // DELETE localhost:8080/products/1
     @DeleteMapping("products/{id}")
     public List<Product> deleteProduct(@PathVariable Long id) {
@@ -73,5 +91,14 @@ public class ProductController {
         }
         productRepository.save(product);
         return productRepository.findAll();
+    }
+
+    //http://localhost:8080/category-products?categoryId=1
+    @GetMapping("category-products")
+    public Page<Product> getCategoryProducts(@RequestParam Long categoryId, Pageable pageable) {
+        if (categoryId == -1){
+            return productRepository.findAll(pageable);
+        }
+        return productRepository.findByCategory_Id(categoryId, Pageable.unpaged());
     }
 }
