@@ -22,5 +22,5 @@ public class Athlete {
     private String name;
     private String country;
     private Integer age;
-    private Integer totalPoints;
+    private Integer totalPoints = 0;
 }

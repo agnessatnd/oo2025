@@ -5,10 +5,12 @@ import ee.agnessa.kymnevoistlus.entity.Result;
 import ee.agnessa.kymnevoistlus.repository.AthleteRepository;
 import ee.agnessa.kymnevoistlus.repository.ResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:5174")
 @RestController
 
 public class ResultController {
@@ -27,6 +29,11 @@ public class ResultController {
             throw new RuntimeException("ERROR_PERFORMANCE_MUST_BE_POSITIVE");
         }
 
+        Athlete athlete = athleteRepository.findById(result.getAthleteId())
+                .orElseThrow(() -> new RuntimeException("ERROR_ATHLETE_NOT_FOUND"));
+
+        result.setAthlete(athlete);
+
         int points = calculatePoints(result.getEvent(), result.getPerformance());
         if (points <= 0){
             throw new RuntimeException("ERROR_POINTS_MUST_BE_POSITIVE");
@@ -36,9 +43,9 @@ public class ResultController {
         resultRepository.save(result);
 
         // lisame sportlase külge tema punktide kogusumma
-        Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
+        athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
         if (athlete != null) {
-            List<Result> athleteResults = resultRepository.findByAthleteId(athlete.getId());
+            List<Result> athleteResults = resultRepository.findByAthlete_Id(athlete.getId());
 
             Integer totalPoints = athleteResults.stream()
                     .mapToInt(Result::getPoints)
@@ -102,6 +109,12 @@ public class ResultController {
         return resultRepository.findAll();
     }
 
+    //konkreetse tulemuse vaatamine
+    @GetMapping("results/{id}")
+    public Result getResult(@PathVariable Long id) {
+        return resultRepository.findById(id).orElse(null);
+    }
+
     //tulemuse eemaldamine
     @DeleteMapping("results/{id}")
     public List<Result> deleteResult(@PathVariable Long id) {
@@ -112,7 +125,7 @@ public class ResultController {
         // kui tulemus kustutatakse, siis uuendame ka punktide kogusummat
         Athlete athlete = athleteRepository.findById(result.getAthlete().getId()).orElseThrow(()->new RuntimeException("ATHLETE_NOT_FOUND"));
         if (athlete != null) {
-            List<Result> athleteResults = resultRepository.findByAthleteId(athlete.getId());
+            List<Result> athleteResults = resultRepository.findByAthlete_Id(athlete.getId());
 
             Integer totalPoints = athleteResults.stream()
                     .mapToInt(Result::getPoints)
@@ -121,6 +134,29 @@ public class ResultController {
             athlete.setTotalPoints(totalPoints);
             athleteRepository.save(athlete);
         }
+        return resultRepository.findAll();
+    }
+    @GetMapping("athlete-results")
+    public Page<Result> getAthleteResults(
+            @RequestParam(required = false) Long athleteId,
+            @RequestParam(required = false) String country,
+            Pageable pageable
+    ) {
+        if (country != null) {
+            return resultRepository.findByAthlete_Country(country, pageable);
+        }
+        if (athleteId != null && athleteId != -1) {
+            return resultRepository.findByAthlete_Id(athleteId, pageable);
+        }
+        return resultRepository.findAll(pageable);
+    }
+
+    @PutMapping("results")
+    public List<Result> updateResult(@RequestBody Result result) {
+        if (result.getId() == null) {
+            throw new RuntimeException("CANNOT_EDIT_WITHOUT_ID");
+        }
+        resultRepository.save(result);
         return resultRepository.findAll();
     }
 }

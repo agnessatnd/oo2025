@@ -2,6 +2,7 @@ import { useEffect,  useRef,  useState } from "react";
 import { Product } from '../models/Product';
 import { Category } from "../models/Category";
 import { ToastContainer, toast } from 'react-toastify';
+import { Link } from "react-router-dom";
 
 
 function ManageProducts() {
@@ -75,7 +76,9 @@ function ManageProducts() {
       <input ref={activeRef} type="checkbox" /> <br />
       <label>Category</label> <br />
       <select ref={categoryRef}>
-        {categories.map(category => <option value={category.id}>{category.name}</option>)}
+        {categories.map(category => 
+          <option key={category.id} value={category.id}>{category.name}</option>
+        )}
       </select> <br />
       <button onClick={() => addProduct()}>Add product</button> <br />
       <table>
@@ -87,7 +90,8 @@ function ManageProducts() {
             <th>Pilt</th>
             <th>Aktiivne</th>
             <th>Kategooria</th>
-            <th>Tegevus</th>
+            <th>Kustuta</th>
+            <th>Muuda</th>
           </tr>
         </thead>
         <tbody>
@@ -100,7 +104,12 @@ function ManageProducts() {
               <td>{product.active ? "Jah" : "Ei"}</td>
               <td>{product.category ? product.category.name : "Kategooria puudub"}</td>
               <td>
-          <button onClick={() => handleDelete(product.id)}>Kustuta</button>
+                <button onClick={() => handleDelete(product.id)}>Kustuta</button>
+              </td>
+              <td>
+                <Link to={"/manage/edit-product/" + product.id}>
+                  <button>Edit</button>
+                </Link>
               </td>
             </tr>
           ))}

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+@CrossOrigin(origins = "http://localhost:5174")
 @RestController
 public class AthleteController {
     @Autowired
@@ -30,6 +31,12 @@ public class AthleteController {
         athleteRepository.save(athlete);
         return athleteRepository.findAll();
     }
+    @DeleteMapping("athletes/{id}")
+    public List<Athlete> deleteAthlete(@PathVariable Long id) {
+        athleteRepository.deleteById(id);
+        return athleteRepository.findAll();
+    }
+
     //küsime konkreetse sportlase andmeid
     @GetMapping("athletes/{id}")
     public Athlete getAthlete(@PathVariable Long id) {
@@ -40,5 +47,14 @@ public class AthleteController {
     public Integer getAthletePoints(@PathVariable Long id) {
         Athlete athlete = athleteRepository.findById(id).orElseThrow(() -> new RuntimeException("ERROR_ATHLETE_NOT_FOUND"));
         return athlete.getTotalPoints();
+    }
+
+    @PutMapping("athletes")
+    public List<Athlete> editAthlete(@RequestBody Athlete athlete) {
+        if (athlete.getId() == null || athlete.getId() == 0) {
+            throw new RuntimeException("ERROR_ID_IS_MISSING");
+        }
+        athleteRepository.save(athlete);
+        return athleteRepository.findAll();
     }
 }

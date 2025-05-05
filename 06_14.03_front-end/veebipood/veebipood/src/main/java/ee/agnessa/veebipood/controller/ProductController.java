@@ -99,6 +99,6 @@ public class ProductController {
         if (categoryId == -1){
             return productRepository.findAll(pageable);
         }
-        return productRepository.findByCategory_Id(categoryId, Pageable.unpaged());
+        return productRepository.findByCategory_Id(categoryId, pageable);
     }
 }

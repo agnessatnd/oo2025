@@ -57,9 +57,3 @@ td, th {
 tr:nth-child(even) {
   background-color: #dddddd;
 }
-
-.map {
-  height: 300px;
-  margin: 3%;
-  border-radius: 20px;
-}

@@ -21,4 +21,7 @@ public class Result {
     private int points;
     @ManyToOne
     private Athlete athlete;
+
+    @Transient
+    private Long athleteId;
 }
